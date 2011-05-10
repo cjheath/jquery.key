@@ -1,0 +1,20 @@
+<!doctype html>
+<html>
+<head>
+  <title>
+  jQuery.key
+  </title>
+  <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.6/jquery.js"></script>
+  <script src="javascripts/jquery.key.js" type="text/javascript"></script>
+</head>
+
+</head>
+  <body>
+    <p>Start typing!</p>
+    <script type="text/javascript">
+      $.key.defaultKeyHandler(function(e) {
+	console.log(e.str ? "str: '"+e.str+"'" : "code: "+e.code);
+      });
+    </script>
+  </body>
+</html>
