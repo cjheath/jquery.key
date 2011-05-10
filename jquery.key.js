@@ -93,12 +93,9 @@
     };
 
     var deliver = function(e, code, str) {
-      var fn = keyboardFocus;
-      if (!fn.call) 
-	fn = fn.key;
       e.code = code;
       e.str = str;
-      return fn(e);
+      return keyboardFocus.call ? keyboardFocus(e) : keyboardFocus.key(e);
     };
 
     /* Record the key code from a keydown event to use on auto-repeat and on keyup if no keypress follows */

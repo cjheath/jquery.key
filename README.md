@@ -19,7 +19,7 @@ The most commonly used special keys are in list below.
 
 You can set a default key event handler using $.key.defaultKeyHandler(fn);
 where fn is either a function to receive the events, or an object that
-contains the property "key" whose value is the function.
+contains such a function as a method called "key".
 The defaultKeyHandler receives key events when no other object has taken
 focus.
 
@@ -73,6 +73,11 @@ The following special keys have names assigned:
   $.key.NUMPAD_DIVIDE
   $.key.COMMA
   $.key.PERIOD
+
+Status
+------
+
+Tested on Chrome, FF3, FF3.5, Opera, Safari (Mac), IE7, IE8.
 
 Legal
 -----
