@@ -14,14 +14,12 @@
  * An event that reqresents a special key has the "code" property set.
  * The most commonly used special keys are in list below.
  *
- * To initialize key processing, call "jQuery.key". You may pass a function,
- * or an object containing the property "defaultKeyHandler" to receive keys
- * when no other object has taken focus.
+ * To initialize key processing, call "jQuery.key()".
  *
  * To take keyboard focus, call $.key.focus passing either a function to
  * receive the augmented event, or an object with a "key" method.
  * $.key.focus returns the previous focus, so you can restore it, or just
- * call defocus to revert to the default handler.
+ * call defocus to de-activate jQuery.key (all key events will bubble).
  *
  * A key handling function should return true to allow the event to bubble,
  * or false to stop it bubbling.
@@ -66,11 +64,7 @@
     this.COMMA = 188;
     this.PERIOD = 190;
 
-    var defaultKeyHandler = function(e) { return true; };
-    var keyboardFocus = defaultKeyHandler;	  // Current key handler
-    this.defaultKeyHandler = function(h) {
-      keyboardFocus = defaultKeyHandler = h;
-    };
+    var keyboardFocus = null;	  // Current key handler
 
     /*
      * A key handler may be a function or an object that has a function called "key"
@@ -80,12 +74,12 @@
       if (arguments.length === 0)
 	return keyboardFocus;
       var prevFocus = keyboardFocus;
-      keyboardFocus = handler || defaultKeyHandler;
+      keyboardFocus = handler;
       return prevFocus;
     };
 
     this.defocus = function() {
-      keyboardFocus = defaultKeyHandler;
+      keyboardFocus = null;
     };
 
     this.hasFocus = function(obj) {
@@ -105,15 +99,17 @@
       // Handle special keys using keydown; these browsers don't send keypress for these events
       $(document).bind('keydown', function(e){
 	var bubble = true;
-	if (downKey && downKey == e.keyCode)    // Auto-repeat
+	if (!keyboardFocus) return true;
+	if (downKey && downKey == e.keyCode) {    // Auto-repeat
 	  bubble = deliver(e, downKey);
+	}
 	downKey = e.keyCode;
 	if ((e.charCode || e.which) == 8)
 	  bubble = false;	/* Don't go to the previous page */
 	return bubble;
       });
       $(document).bind('keyup', function(e){
-	if (downKey)  // There was no keypress in between; must be a special key
+	if (keyboardFocus && downKey)  // There was no keypress in between; must be a special key
 	  deliver(e, downKey);
 	downKey = null;
 	return true;
@@ -127,6 +123,8 @@
        * I guess if you want this we could deliver the keypress on a timer(0)...
        */
       document.addEventListener('textInput', function(e) {
+	if (!keyboardFocus)
+	  return true; // We're inactive
 	return deliver(e, false, e.originalEvent.data);
       });
     } else {
@@ -141,6 +139,7 @@
 	  charCode = e.which;
 	else
 	  charCode = e.charCode;
+	if (!keyboardFocus) return true;  // We're inactive
 	if (charCode && !e.metaKey && !e.altKey && !e.ctrlKey && charCode >= 32)
 	  return deliver(e, false, String.fromCharCode(charCode));
 	else  // control key on MSIE, or any special key on Firefox, etc
